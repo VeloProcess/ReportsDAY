@@ -12,9 +12,9 @@
 // Detecta se está em produção ou desenvolvimento
 const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
 
-// URL do backend - ALTERE AQUI quando subir o backend
+// URL do backend
 const BACKEND_URL = isProduction 
-  ? 'https://seu-backend.onrender.com'  // <-- Alterar para URL do backend em produção
+  ? 'https://five5system-backend.onrender.com'
   : 'http://localhost:3000';
 
 const CONFIG = {
