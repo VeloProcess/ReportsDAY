@@ -818,8 +818,58 @@ elements.btnClearLogs.addEventListener('click', () => {
 // Inicialização
 // =============================================
 
+/**
+ * Verifica status de todas as conexões
+ */
+async function checkConnections() {
+  addLog('🔌 Verificando conexões...', 'info');
+  
+  try {
+    const response = await fetch(`${CONFIG.backendUrl}/api/status`);
+    
+    if (response.ok) {
+      const data = await response.json();
+      
+      // Backend
+      addLog('✅ Backend: Conectado', 'success');
+      
+      // Redis
+      if (data.redis?.connected) {
+        addLog('✅ Redis: Conectado', 'success');
+      } else {
+        addLog('⚠️ Redis: Desconectado', 'warning');
+      }
+      
+      // WhatsApp
+      if (data.whatsapp?.status === 'connected') {
+        addLog('✅ WhatsApp: Conectado', 'success');
+      } else {
+        addLog('⚠️ WhatsApp: Desconectado ou com falha', 'warning');
+      }
+      
+      // API 55PBX
+      if (data.api55?.configured) {
+        addLog('✅ API 55PBX: Configurada', 'success');
+      } else {
+        addLog('⚠️ API 55PBX: Não configurada', 'warning');
+      }
+      
+      addLog('─────────────────────────', 'info');
+      
+    } else {
+      addLog('❌ Backend: Erro ao conectar', 'error');
+    }
+    
+  } catch (err) {
+    addLog('❌ Backend: Offline ou inacessível', 'error');
+    addLog(`   URL: ${CONFIG.backendUrl}`, 'info');
+  }
+}
+
 function init() {
   addLog('Iniciando ReportsDAY...', 'info');
+  addLog(`Backend: ${CONFIG.backendUrl}`, 'info');
+  addLog('─────────────────────────', 'info');
   
   // Atualiza relógio a cada segundo
   updateClock();
@@ -835,12 +885,13 @@ function init() {
   // Conecta WebSocket
   connectWebSocket();
   
-  // Busca dados iniciais via REST (apenas uma vez)
-  setTimeout(() => {
+  // Verifica conexões e busca dados iniciais
+  setTimeout(async () => {
+    await checkConnections();
     fetchStatus();
     fetchHistory();
-    fetchD0Report(); // Busca D0 inicial (uma vez)
-    fetchAnalise(); // Busca análise histórica (15 dias)
+    fetchD0Report();
+    fetchAnalise();
   }, 1000);
   
   // Refresh periódico (apenas status e history, NÃO o D0)
@@ -849,9 +900,7 @@ function init() {
       fetchStatus();
     }
     fetchHistory();
-  }, 10000); // A cada 10 segundos
-  
-  addLog('Painel carregado com sucesso!', 'success');
+  }, 10000);
 }
 
 // Inicia quando DOM estiver pronto
