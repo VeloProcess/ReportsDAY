@@ -13,10 +13,8 @@
 const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
 
 // URL do backend
-// Em produção, use a URL do backend deployado no Render
-// Se ainda não tiver deployado, atualize esta URL após fazer o deploy
 const BACKEND_URL = isProduction 
-  ? 'https://reportsday-backend.onrender.com'  // Atualize para a URL do seu backend no Render
+  ? 'https://five5system-backend.onrender.com'
   : 'http://localhost:3005';
 
 const CONFIG = {
