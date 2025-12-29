@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReportsDAY | Painel de Monitoramento</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header__brand">
+        <div class="header__logo">
+          <span class="header__logo-icon">◈</span>
+        </div>
+        <div class="header__title">
+          <h1>ReportsDAY</h1>
+          <span class="header__subtitle">55SYSTEM Monitor</span>
+        </div>
+      </div>
+      <div class="header__status">
+        <div class="header__clock" id="clock">--:--:--</div>
+        <div class="header__connection" id="wsStatus">
+          <span class="status-dot status-dot--offline"></span>
+          <span>Desconectado</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Status Cards -->
+      <section class="status-grid">
+        <!-- WhatsApp Status -->
+        <div class="card card--status" id="whatsappCard">
+          <div class="card__header">
+            <span class="card__icon">📱</span>
+            <h3 class="card__title">WhatsApp</h3>
+          </div>
+          <div class="card__body">
+            <div class="status-indicator" id="whatsappStatus">
+              <span class="status-dot status-dot--offline"></span>
+              <span class="status-text">Aguardando...</span>
+            </div>
+            <div class="qr-container" id="qrContainer" style="display: none;">
+              <div class="qr-placeholder" id="qrCode">
+                <span>QR Code aparecerá aqui</span>
+              </div>
+              <p class="qr-instruction">Escaneie com seu WhatsApp</p>
+            </div>
+          </div>
+          <div class="card__footer">
+            <button class="btn btn--secondary" id="btnReconnectWpp">
+              Reconectar
+            </button>
+          </div>
+        </div>
+
+        <!-- Redis Status -->
+        <div class="card card--status" id="redisCard">
+          <div class="card__header">
+            <span class="card__icon">🗄️</span>
+            <h3 class="card__title">Redis</h3>
+          </div>
+          <div class="card__body">
+            <div class="status-indicator" id="redisStatus">
+              <span class="status-dot status-dot--offline"></span>
+              <span class="status-text">Aguardando...</span>
+            </div>
+            <div class="redis-info" id="redisInfo">
+              <div class="info-row">
+                <span class="info-label">Cache:</span>
+                <span class="info-value" id="cacheStatus">--</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">TTL:</span>
+                <span class="info-value" id="cacheTTL">--</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Next Run -->
+        <div class="card card--status" id="scheduleCard">
+          <div class="card__header">
+            <span class="card__icon">⏰</span>
+            <h3 class="card__title">Próximo Disparo</h3>
+          </div>
+          <div class="card__body">
+            <div class="next-run">
+              <div class="next-run__time" id="nextRunTime">--:--</div>
+              <div class="next-run__countdown" id="countdown">
+                <span class="countdown__value" id="countdownHours">00</span>
+                <span class="countdown__sep">:</span>
+                <span class="countdown__value" id="countdownMinutes">00</span>
+                <span class="countdown__sep">:</span>
+                <span class="countdown__value" id="countdownSeconds">00</span>
+              </div>
+            </div>
+          </div>
+          <div class="card__footer">
+            <button class="btn btn--primary" id="btnTrigger">
+              ▶ Disparar Agora
+            </button>
+          </div>
+        </div>
+
+        <!-- API 55 Status -->
+        <div class="card card--status" id="apiCard">
+          <div class="card__header">
+            <span class="card__icon">📡</span>
+            <h3 class="card__title">API 55PBX</h3>
+          </div>
+          <div class="card__body">
+            <div class="status-indicator" id="apiStatus">
+              <span class="status-dot status-dot--warning"></span>
+              <span class="status-text">Não configurada</span>
+            </div>
+            <p class="card__note">
+              Aguardando definição dos endpoints
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Relatório D0 - KPIs do Dia -->
+      <section class="report-d0-section">
+        <div class="card card--report-d0">
+          <div class="card__header">
+            <span class="card__icon">📊</span>
+            <h3 class="card__title">Relatório D0</h3>
+            <div class="d0-update-info">
+              <span class="d0-update-label">Última atualização:</span>
+              <span class="d0-update-time" id="d0LastUpdate">--:--</span>
+            </div>
+          </div>
+          <div class="card__body">
+            <!-- KPIs Grid -->
+            <div class="d0-kpis">
+              <!-- Total de Ligações -->
+              <div class="d0-kpi">
+                <div class="d0-kpi__icon">📞</div>
+                <div class="d0-kpi__content">
+                  <span class="d0-kpi__value" id="d0TotalCalls">0</span>
+                  <span class="d0-kpi__label">Total de Ligações</span>
+                </div>
+              </div>
+
+              <!-- % Atendidas -->
+              <div class="d0-kpi d0-kpi--success">
+                <div class="d0-kpi__icon">✅</div>
+                <div class="d0-kpi__content">
+                  <span class="d0-kpi__value" id="d0Answered">0%</span>
+                  <span class="d0-kpi__label">Atendidas</span>
+                  <span class="d0-kpi__count" id="d0AnsweredCount">(0)</span>
+                </div>
+              </div>
+
+              <!-- % Abandonadas -->
+              <div class="d0-kpi d0-kpi--danger">
+                <div class="d0-kpi__icon">📵</div>
+                <div class="d0-kpi__content">
+                  <span class="d0-kpi__value" id="d0Abandoned">0%</span>
+                  <span class="d0-kpi__label">Abandonadas</span>
+                  <span class="d0-kpi__count" id="d0AbandonedCount">(0)</span>
+                </div>
+              </div>
+
+              <!-- % Retidas URA -->
+              <div class="d0-kpi d0-kpi--warning">
+                <div class="d0-kpi__icon">🔄</div>
+                <div class="d0-kpi__content">
+                  <span class="d0-kpi__value" id="d0RetainedURA">0%</span>
+                  <span class="d0-kpi__label">Retidas na URA</span>
+                  <span class="d0-kpi__count" id="d0RetainedCount">(0)</span>
+                </div>
+              </div>
+
+              <!-- Horário de Pico -->
+              <div class="d0-kpi d0-kpi--info">
+                <div class="d0-kpi__icon">🕐</div>
+                <div class="d0-kpi__content">
+                  <span class="d0-kpi__value" id="d0PeakHour">--:--</span>
+                  <span class="d0-kpi__label">Horário de Pico</span>
+                  <span class="d0-kpi__count" id="d0PeakCount">(0 lig.)</span>
+                </div>
+              </div>
+
+              <!-- Tempo Médio Espera -->
+              <div class="d0-kpi">
+                <div class="d0-kpi__icon">⏱️</div>
+                <div class="d0-kpi__content">
+                  <span class="d0-kpi__value" id="d0AvgWait">0s</span>
+                  <span class="d0-kpi__label">Tempo Médio Espera</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Barra de Distribuição -->
+            <div class="d0-distribution">
+              <div class="d0-distribution__bar">
+                <div class="d0-distribution__segment d0-distribution__segment--answered" id="d0BarAnswered" style="width: 0%"></div>
+                <div class="d0-distribution__segment d0-distribution__segment--abandoned" id="d0BarAbandoned" style="width: 0%"></div>
+                <div class="d0-distribution__segment d0-distribution__segment--ura" id="d0BarURA" style="width: 0%"></div>
+              </div>
+              <div class="d0-distribution__legend">
+                <span class="d0-legend d0-legend--answered">● Atendidas</span>
+                <span class="d0-legend d0-legend--abandoned">● Abandonadas</span>
+                <span class="d0-legend d0-legend--ura">● Retidas URA</span>
+              </div>
+            </div>
+
+            <!-- Próxima atualização -->
+            <div class="d0-next-update">
+              <span>Próxima atualização em:</span>
+              <span class="d0-next-update__countdown" id="d0NextUpdate">--:--</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Análise Histórica - Comparativo 15 Dias -->
+      <section class="analise-section">
+        <div class="card card--analise">
+          <div class="card__header">
+            <span class="card__icon">📈</span>
+            <h3 class="card__title">Análise Histórica (15 dias)</h3>
+            <button class="btn btn--icon" id="btnRefreshAnalise" title="Atualizar análise">
+              🔄
+            </button>
+          </div>
+          <div class="card__body">
+            <!-- Resumo Principal -->
+            <div class="analise-resumo" id="analiseResumo">
+              <div class="analise-resumo__status" id="analiseStatus">
+                <span class="analise-emoji" id="analiseEmoji">⏳</span>
+                <span class="analise-nivel" id="analiseNivel">Carregando...</span>
+              </div>
+              <p class="analise-resumo__descricao" id="analiseDescricao">Aguardando dados...</p>
+            </div>
+
+            <!-- Cards de Comparação -->
+            <div class="analise-grid">
+              <!-- Atendidas -->
+              <div class="analise-card analise-card--atendidas">
+                <div class="analise-card__header">
+                  <span class="analise-card__icon">✅</span>
+                  <span class="analise-card__title">Atendidas</span>
+                  <span class="analise-card__badge" id="analiseAtendBadge">--</span>
+                </div>
+                <div class="analise-card__body">
+                  <div class="analise-card__row">
+                    <span>Hoje:</span>
+                    <strong id="analiseAtendHoje">--</strong>
+                  </div>
+                  <div class="analise-card__row">
+                    <span>Média 15d:</span>
+                    <strong id="analiseAtendMedia">--</strong>
+                  </div>
+                  <div class="analise-card__bar">
+                    <div class="analise-card__bar-fill" id="analiseAtendBar" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Abandonadas -->
+              <div class="analise-card analise-card--abandonadas">
+                <div class="analise-card__header">
+                  <span class="analise-card__icon">📵</span>
+                  <span class="analise-card__title">Abandonadas</span>
+                  <span class="analise-card__badge" id="analiseAbandBadge">--</span>
+                </div>
+                <div class="analise-card__body">
+                  <div class="analise-card__row">
+                    <span>Hoje:</span>
+                    <strong id="analiseAbandHoje">--</strong>
+                  </div>
+                  <div class="analise-card__row">
+                    <span>Média 15d:</span>
+                    <strong id="analiseAbandMedia">--</strong>
+                  </div>
+                  <div class="analise-card__bar analise-card__bar--danger">
+                    <div class="analise-card__bar-fill" id="analiseAbandBar" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Retidas URA -->
+              <div class="analise-card analise-card--ura">
+                <div class="analise-card__header">
+                  <span class="analise-card__icon">🔄</span>
+                  <span class="analise-card__title">Retidas URA</span>
+                  <span class="analise-card__badge" id="analiseUraBadge">--</span>
+                </div>
+                <div class="analise-card__body">
+                  <div class="analise-card__row">
+                    <span>Hoje:</span>
+                    <strong id="analiseUraHoje">--</strong>
+                  </div>
+                  <div class="analise-card__row">
+                    <span>Média 15d:</span>
+                    <strong id="analiseUraMedia">--</strong>
+                  </div>
+                  <div class="analise-card__bar analise-card__bar--warning">
+                    <div class="analise-card__bar-fill" id="analiseUraBar" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total -->
+              <div class="analise-card analise-card--total">
+                <div class="analise-card__header">
+                  <span class="analise-card__icon">📊</span>
+                  <span class="analise-card__title">Total</span>
+                  <span class="analise-card__badge" id="analiseTotalBadge">--</span>
+                </div>
+                <div class="analise-card__body">
+                  <div class="analise-card__row">
+                    <span>Hoje:</span>
+                    <strong id="analiseTotalHoje">--</strong>
+                  </div>
+                  <div class="analise-card__row">
+                    <span>Média 15d:</span>
+                    <strong id="analiseTotalMedia">--</strong>
+                  </div>
+                  <div class="analise-card__bar analise-card__bar--primary">
+                    <div class="analise-card__bar-fill" id="analiseTotalBar" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Última atualização -->
+            <div class="analise-footer">
+              <span>Última análise:</span>
+              <span id="analiseLastUpdate">--:--</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- History & Logs Section -->
+      <section class="logs-section">
+        <!-- Execution History -->
+        <div class="card card--history">
+          <div class="card__header">
+            <span class="card__icon">📋</span>
+            <h3 class="card__title">Histórico de Execuções</h3>
+          </div>
+          <div class="card__body">
+            <div class="history-list" id="historyList">
+              <div class="history-empty">
+                <span>Nenhuma execução registrada</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Logs -->
+        <div class="card card--logs">
+          <div class="card__header">
+            <span class="card__icon">🖥️</span>
+            <h3 class="card__title">Console</h3>
+            <button class="btn btn--icon" id="btnClearLogs" title="Limpar logs">
+              🗑️
+            </button>
+          </div>
+          <div class="card__body">
+            <div class="console" id="console">
+              <div class="console__line console__line--info">
+                <span class="console__time">--:--:--</span>
+                <span class="console__msg">Aguardando conexão com o servidor...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span>55SYSTEM © 2024</span>
+      <span class="footer__sep">|</span>
+      <span>Backend: <code id="backendUrl">http://localhost:3000</code></span>
+    </footer>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
+
